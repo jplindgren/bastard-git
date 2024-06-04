@@ -6,8 +6,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/jplindgren/bastard-git/object"
-	"github.com/jplindgren/bastard-git/store"
+	"github.com/jplindgren/bastard-git/internal/object"
+	"github.com/jplindgren/bastard-git/internal/store"
 )
 
 var initialBranch = "main"

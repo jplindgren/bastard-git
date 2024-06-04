@@ -1,4 +1,4 @@
-package main
+package repository
 
 import (
 	"bufio"
@@ -11,20 +11,19 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jplindgren/bastard-git/object"
-	"github.com/jplindgren/bastard-git/repository"
+	"github.com/jplindgren/bastard-git/internal/object"
 )
 
 type FileSystemReader struct {
 }
 
 type DiffResult struct {
-	name   string
-	status string //add, remove, modify
+	Name   string
+	Status string //add, remove, modify
 }
 
 func (fsr *FileSystemReader) Diff(rootPath string) ([]DiffResult, error) {
-	repo := repository.GetRepository()
+	repo := GetRepository()
 
 	toBeCommited := []DiffResult{}
 
@@ -47,13 +46,13 @@ func (fsr *FileSystemReader) Diff(rootPath string) ([]DiffResult, error) {
 			if idxFile.name == path {
 				found = true
 				if info.ModTime().Format(time.RFC3339) != idxFile.modTime {
-					toBeCommited = append(toBeCommited, DiffResult{name: info.Name(), status: "modify"})
+					toBeCommited = append(toBeCommited, DiffResult{Name: info.Name(), Status: "modify"})
 				}
 			}
 		}
 
 		if !found {
-			toBeCommited = append(toBeCommited, DiffResult{name: info.Name(), status: "add"})
+			toBeCommited = append(toBeCommited, DiffResult{Name: info.Name(), Status: "add"})
 		}
 
 		return nil
@@ -105,7 +104,7 @@ func readIndex(indexPath string) ([]IndexEntry, error) {
 }
 
 func GenerateObjectTree(dirPath string) (object.BGitObject, error) {
-	repo := repository.GetRepository()
+	repo := GetRepository()
 	fmt.Printf("Reading directory: %s\n", dirPath)
 
 	entries, err := os.ReadDir(dirPath)

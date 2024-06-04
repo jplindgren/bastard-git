@@ -9,7 +9,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/jplindgren/bastard-git/object"
+	"github.com/jplindgren/bastard-git/internal/object"
 )
 
 type Store interface {

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jplindgren/bastard-git/utils"
+	"github.com/jplindgren/bastard-git/internal/utils"
 )
 
 func (r *Repository) DeleteWorkingTree() error {
