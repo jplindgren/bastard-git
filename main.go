@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/jplindgren/bastard-git/object"
+	"github.com/jplindgren/bastard-git/repository"
 )
 
 func main() {
@@ -58,7 +59,7 @@ func getCommandsToExecute(command string) (func(args []string) error, error) {
 // # Commands
 
 func commandInit(args []string) error {
-	return InitRepository()
+	return repository.Init()
 }
 
 // func commandHashObject(args []string) error {
@@ -75,7 +76,7 @@ func commandInit(args []string) error {
 // }
 
 func commandCatFile(args []string) error {
-	repo := GetRepository()
+	repo := repository.GetRepository()
 	if !repo.IsGitRepo() {
 		fmt.Println("Not a git repository")
 		os.Exit(1)
@@ -83,13 +84,13 @@ func commandCatFile(args []string) error {
 
 	hash := args[0]
 
-	content, err := repo.store.Get(hash)
+	content, err := repo.Store.Get(hash)
 	os.Stdout.Write([]byte(content))
 	return err
 }
 
 func commandStatus(args []string) error {
-	repo := GetRepository()
+	repo := repository.GetRepository()
 	if !repo.IsGitRepo() {
 		fmt.Println("Not a git repository")
 		os.Exit(1)
@@ -98,7 +99,7 @@ func commandStatus(args []string) error {
 	fmt.Println("Getting status")
 
 	reader := &FileSystemReader{}
-	toBeCommited, err := reader.Diff(repo.workTree)
+	toBeCommited, err := reader.Diff(repo.WorkTree)
 	if err != nil {
 		return err
 	}
@@ -116,7 +117,7 @@ func commandStatus(args []string) error {
 }
 
 func commandCommit(args []string) error {
-	repo := GetRepository()
+	repo := repository.GetRepository()
 	if !repo.IsGitRepo() {
 		fmt.Println("Not a git repository")
 		os.Exit(1)
@@ -131,25 +132,25 @@ func commandCommit(args []string) error {
 
 	fmt.Println("Creating commit with message: " + message)
 
-	rootTree, err := GenerateObjectTree(repo.workTree)
+	rootTree, err := GenerateObjectTree(repo.WorkTree)
 	if err != nil {
 		return err
 	}
 
 	// //TODO: commit should check if a previous commit exists and set it as parent
-	commit := object.NewCommit(repo.email, message, rootTree.GetHash(), []string{})
-	err = repo.store.Write(commit)
+	commit := object.NewCommit(repo.Email, message, rootTree.GetHash(), []string{})
+	err = repo.Store.Write(commit)
 	if err != nil {
 		return err
 	}
 
-	repo.updateIndex(rootTree)
-	repo.updateRefHead(commit.ToString())
+	repo.UpdateIndex(rootTree)
+	repo.UpdateRefHead(commit.ToString())
 	return err
 }
 
 func commandCheckout(args []string) error {
-	repo := GetRepository()
+	repo := repository.GetRepository()
 	if !repo.IsGitRepo() {
 		fmt.Println("Not a git repository")
 		os.Exit(1)
@@ -172,18 +173,18 @@ func commandCheckout(args []string) error {
 			return err
 		}
 
-		err = RecreateWorkingTree(treeHash)
+		err = repository.RecreateWorkingTree(treeHash)
 		if err != nil {
 			return err
 		}
 
-		repo.setHEAD(args[0])
+		repo.SetHEAD(args[0])
 
 		os.Stdout.WriteString("Switched to branch " + args[0])
 	}
 
 	if len(args) == 2 {
-		err := repo.createBranch(args[1])
+		err := repo.CreateBranch(args[1])
 		if err != nil {
 			return err
 		}
@@ -194,7 +195,7 @@ func commandCheckout(args []string) error {
 }
 
 func commandBranch(args []string) error {
-	repo := GetRepository()
+	repo := repository.GetRepository()
 	if !repo.IsGitRepo() {
 		fmt.Println("Not a git repository")
 		os.Exit(1)
@@ -210,7 +211,7 @@ func commandBranch(args []string) error {
 }
 
 func commandBranchList(args []string) error {
-	repo := GetRepository()
+	repo := repository.GetRepository()
 
 	branches, err := repo.BranchList()
 	if err != nil {
@@ -223,10 +224,5 @@ func commandBranchList(args []string) error {
 }
 
 func commandTest(args []string) error {
-	//err := DeleteWorkingTree()
-
-	err := RecreateWorkingTree(args[0])
-	return err
+	return nil
 }
-
-//05ab1b66b4456f6ecd3d40314b32b7763eaaba57

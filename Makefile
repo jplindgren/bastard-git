@@ -14,17 +14,17 @@ test: go test -v ./...
 
 build:
 	@echo "Building $(PROJECT_NAME)"
-	go build -o $(BINARY_NAME) main.go repository.go FileReader.go working.go
+	go build -o $(BINARY_NAME) main.go FileReader.go
 	chmod +x $(BINARY_NAME)
 
 build-mac:
 	@echo "Building $(PROJECT_NAME) for macOS m1"
-	GOOS=darwin GOARCH=amd64 go build -o "$(BINARY_NAME)-m1" main.go repository.go FileReader.go working.go
+	GOOS=darwin GOARCH=amd64 go build -o "$(BINARY_NAME)-m1" main.go FileReader.go
 	chmod +x "$(BINARY_NAME)-m1"
 
 run:
 	@echo "Running $(PROJECT_NAME)"
-	go run main.go repository.go FileReader.go working.go
+	go run main.go FileReader.go
 
 init:
 	@echo "Initializing a new bgit repo..."
