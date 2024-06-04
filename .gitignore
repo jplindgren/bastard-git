@@ -20,3 +20,11 @@
 # Go workspace file
 go.work
 go.work.sum
+
+srctest
+srctest_bkp
+bgit
+bgit-m1
+
+.vscode
+.docker
