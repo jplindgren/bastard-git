@@ -24,12 +24,12 @@ type Repository struct {
 		objectPath   string
 		refsPath     string
 	}
-	Email string //TODO: real git gets user/email from global/local config
+	Email string
 	Store store.Store
 }
 
 func Init() error {
-	currentRepository := GetRepository()
+	currentRepository := GetRepository("")
 
 	err := currentRepository.createGitInfra()
 	return err
@@ -38,13 +38,13 @@ func Init() error {
 var bGitFolder = ".bgit"
 var bGitTempFolder = ".bGitemp"
 
-func GetRepository() Repository {
+func GetRepository(user string) Repository {
 	rooPath, _ := os.Getwd()
 
 	testFolder := "srctest"
 
 	currentRepository := Repository{}
-	currentRepository.Email = "email@gmail.com" //TODO: git get from global/local config
+	currentRepository.Email = user
 	currentRepository.WorkTree = filepath.Join(rooPath, testFolder)
 	currentRepository.bGitTempFolder = bGitTempFolder
 	currentRepository.BGitFolder = bGitFolder
@@ -61,9 +61,19 @@ func GetRepository() Repository {
 	return currentRepository
 }
 
-func (r *Repository) IsGitRepo() bool {
+func (r *Repository) IsValid() bool {
 	_, err := os.Stat(r.Paths.bGitPath)
-	return !os.IsNotExist(err)
+	if os.IsNotExist(err) {
+		fmt.Fprintln(os.Stderr, "Not a git repository")
+		return false
+	}
+
+	if r.Email == "" {
+		fmt.Fprintln(os.Stderr, "User not set. Please use 'export BGIT_USER=<email>'")
+		return false
+	}
+
+	return true
 }
 
 func (r *Repository) createGitInfra() error {

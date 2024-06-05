@@ -20,9 +20,8 @@ var createBranchCmd = &cobra.Command{
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		repo := repository.GetRepository()
-		if !repo.IsGitRepo() {
-			fmt.Fprintln(os.Stderr, "Not a git repository")
+		repo := repository.GetRepository(cfg.user)
+		if !repo.IsValid() {
 			os.Exit(1)
 		}
 		err := repo.CreateBranch(args[0])

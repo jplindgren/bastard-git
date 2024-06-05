@@ -23,7 +23,7 @@ type DiffResult struct {
 }
 
 func (fsr *FileSystemReader) Diff(rootPath string) ([]DiffResult, error) {
-	repo := GetRepository()
+	repo := GetRepository("")
 
 	toBeCommited := []DiffResult{}
 
@@ -104,7 +104,7 @@ func readIndex(indexPath string) ([]IndexEntry, error) {
 }
 
 func GenerateObjectTree(dirPath string) (object.BGitObject, error) {
-	repo := GetRepository()
+	repo := GetRepository("")
 	fmt.Printf("Reading directory: %s\n", dirPath)
 
 	entries, err := os.ReadDir(dirPath)

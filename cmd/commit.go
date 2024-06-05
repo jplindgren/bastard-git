@@ -19,9 +19,8 @@ var commitCmd = &cobra.Command{
 	Long: `A commit is a snapshot of the repository at that point in time. In original GIT a commit contains the content of the index (your stage).
 	bGit is simpler, and does not contain the concept of the index. At the time of the commit we generate the tree of the objects commit, trees and blobs.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		repo := repository.GetRepository()
-		if !repo.IsGitRepo() {
-			fmt.Println("Not a git repository")
+		repo := repository.GetRepository(cfg.user)
+		if !repo.IsValid() {
 			os.Exit(1)
 		}
 
@@ -35,18 +34,18 @@ var commitCmd = &cobra.Command{
 		fmt.Println("Creating commit with message: " + message)
 
 		rootTree, err := repository.GenerateObjectTree(repo.WorkTree)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-			os.Exit(1)
-		}
+		check(err)
 
 		//TODO: commit should check if a previous commit exists and set it as parent
-		commit := object.NewCommit(repo.Email, message, rootTree.GetHash(), []string{})
+		branch, err := repo.GetCurrentBranch()
+		check(err)
+
+		commitHash, _, err := repo.GetBranchTip(branch)
+		check(err)
+
+		commit := object.NewCommit(repo.Email, message, rootTree.GetHash(), []string{commitHash})
 		err = repo.Store.Write(commit)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-			os.Exit(1)
-		}
+		check(err)
 
 		repo.UpdateIndex(rootTree)
 		repo.UpdateRefHead(commit.ToString())

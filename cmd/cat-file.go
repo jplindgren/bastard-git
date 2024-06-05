@@ -20,9 +20,8 @@ The content is returned unzipped. Blobs contains the file content, trees contain
 and commits contains the commit message and author information.`,
 
 	Run: func(cmd *cobra.Command, args []string) {
-		repo := repository.GetRepository()
-		if !repo.IsGitRepo() {
-			fmt.Println("Not a git repository")
+		repo := repository.GetRepository(cfg.user)
+		if !repo.IsValid() {
 			os.Exit(1)
 		}
 

@@ -9,12 +9,12 @@ import (
 )
 
 var listBranchCmd = &cobra.Command{
-	Use:   "list",
-	Short: "Show all branches available",
+	Use:     "list",
+	Aliases: []string{"ls", "l"},
+	Short:   "Show all branches available",
 	Run: func(cmd *cobra.Command, args []string) {
-		repo := repository.GetRepository()
-		if !repo.IsGitRepo() {
-			fmt.Fprintln(os.Stderr, "Not a git repository")
+		repo := repository.GetRepository(cfg.user)
+		if !repo.IsValid() {
 			os.Exit(1)
 		}
 

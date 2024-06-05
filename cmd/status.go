@@ -12,9 +12,8 @@ var statusCmd = &cobra.Command{
 	Use:   "status",
 	Short: "Show the working tree status",
 	Run: func(cmd *cobra.Command, args []string) {
-		repo := repository.GetRepository()
-		if !repo.IsGitRepo() {
-			fmt.Println("Not a git repository")
+		repo := repository.GetRepository(cfg.user)
+		if !repo.IsValid() {
 			os.Exit(1)
 		}
 

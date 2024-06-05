@@ -33,7 +33,7 @@ func (r *Repository) DeleteWorkingTree() error {
 
 func RecreateWorkingTree(treeHash string) error {
 	var idxBuffer bytes.Buffer
-	repo := GetRepository()
+	repo := GetRepository("")
 
 	//Create temp folder
 	err := os.Mkdir(repo.Paths.bGitTempPath, 0755)
