@@ -55,8 +55,11 @@ File containing the state of the repo at the time. In real GIT the index is upda
 - clone?
 - reflog and `bgit log` command
 
-## References
+## References and related links
 
 https://medium.com/data-management-for-researchers/git-under-the-hood-part-1-object-storage-in-git-57c9adfb5e5f
 https://stackoverflow.com/questions/22968856/what-is-the-file-format-of-a-git-commit-object-data-structure
 https://www.youtube.com/watch?v=RxHJdapz2p0 (video)
+
+https://stackoverflow.com/questions/15765366/how-does-git-track-file-changes-internally
+https://stackoverflow.com/questions/4084921/what-does-the-git-index-contain-exactly
