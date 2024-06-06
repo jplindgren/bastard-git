@@ -39,7 +39,6 @@ func NewTree(entries []BGitObject, path string, mode fs.FileMode, modTime time.T
 
 func (t *Tree) Serialize() []byte {
 	var buffer bytes.Buffer
-	//buffer.WriteString("t\000")
 	for _, entry := range t.entries {
 		buffer.WriteString(entry.ToString())
 	}
