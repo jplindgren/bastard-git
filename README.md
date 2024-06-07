@@ -63,3 +63,11 @@ https://www.youtube.com/watch?v=RxHJdapz2p0 (video)
 
 https://stackoverflow.com/questions/15765366/how-does-git-track-file-changes-internally
 https://stackoverflow.com/questions/4084921/what-does-the-git-index-contain-exactly
+
+https://www.freecodecamp.org/news/git-internals-objects-branches-create-repo/
+
+https://benhoyt.com/writings/go-1brc/
+https://github.com/git/git/blob/v2.21.1/commit.c
+https://www.freecodecamp.org/news/boost-programming-skills-read-git-code/
+https://git-scm.com/book/en/v2/Git-Internals-Git-Objects
+https://www.freecodecamp.org/news/git-internals-objects-branches-create-repo/

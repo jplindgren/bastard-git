@@ -1,12 +1,55 @@
 package utils
 
 import (
+	"bufio"
+	"bytes"
 	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
 )
+
+func ReadDir(path string, readInfo bool) ([]fs.DirEntry, os.FileInfo, error) {
+	var info os.FileInfo
+
+	dirEntries, err := os.ReadDir(path)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if readInfo {
+		info, err = os.Stat(path)
+		if err != nil {
+			return nil, nil, err
+		}
+	}
+
+	return dirEntries, info, nil
+}
+
+func ReadFile(path string, readInfo bool) (*bytes.Buffer, os.FileInfo, error) {
+	var info os.FileInfo
+
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer file.Close()
+
+	if readInfo {
+		info, err = file.Stat()
+		if err != nil {
+			return nil, nil, err
+		}
+	}
+
+	var out bytes.Buffer
+	r := bufio.NewReader(file)
+	io.Copy(&out, r)
+
+	return &out, info, nil
+}
 
 // CopyDir copies the content of src to dst. src should be a full path.
 func CopyDir(dst, src string) error {

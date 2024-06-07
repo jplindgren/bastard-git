@@ -101,7 +101,7 @@ func (r *Repository) SetHEAD(branch string) {
 	}
 }
 
-func (r *Repository) UpdateRefHead(commit string) {
+func (r *Repository) UpdateRefHead(commit string) error {
 	content, err := os.ReadFile(r.Paths.headPath) //extract?
 	if err != nil {
 		fmt.Printf("Error reading HEAD %s \n", err)
@@ -110,11 +110,14 @@ func (r *Repository) UpdateRefHead(commit string) {
 
 	path := string(content)
 	completePath := filepath.Join(r.Paths.bGitPath, path)
-	err = os.WriteFile(completePath, []byte(commit), 0644)
+	file, err := os.OpenFile(completePath, os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-		fmt.Printf("Error updating the ref %s \n", err)
-		os.Exit(1)
+		return err
 	}
+	defer file.Close()
+
+	_, err = file.WriteString(commit)
+	return err
 }
 
 func (r *Repository) UpdateIndex(rootTree object.BGitObject) error {

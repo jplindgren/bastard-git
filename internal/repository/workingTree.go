@@ -35,13 +35,13 @@ func RecreateWorkingTree(treeHash string) error {
 	var idxBuffer bytes.Buffer
 	repo := GetRepository("")
 
-	//Create temp folder
+	// Create temp folder
 	err := os.Mkdir(repo.Paths.bGitTempPath, 0755)
 	if err != nil {
 		return err
 	}
 
-	//TODO: use temp folder to rollback in case it fails
+	// Use temp folder to rollback in case it fails
 	err = repo.RecreateWorkingTree(treeHash, repo.Paths.bGitTempPath, &idxBuffer)
 	if err != nil {
 		return err

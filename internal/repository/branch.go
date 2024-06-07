@@ -42,6 +42,9 @@ func (r *Repository) BranchList() ([]string, error) {
 func (r *Repository) GetBranchTip(branch string) (string, string, error) {
 	bCommitHash, err := os.ReadFile(filepath.Join(r.Paths.refsPath, branch))
 	if err != nil {
+		if os.IsNotExist(err) { //no commits yet
+			return "", "", nil
+		}
 		return "", "", err
 	}
 
@@ -49,6 +52,10 @@ func (r *Repository) GetBranchTip(branch string) (string, string, error) {
 	commitContent, err := r.Store.Get(commitHash)
 	if err != nil {
 		return "", "", err
+	}
+
+	if commitContent == nil {
+		return "", "", nil
 	}
 
 	lines := strings.Split(string(commitContent), "\n") //TODO: do not read all file
