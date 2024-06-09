@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"bufio"
 	"fmt"
 	"io/fs"
 	"os"
@@ -16,12 +17,13 @@ type Repository struct {
 	BGitFolder     string
 	bGitTempFolder string
 	Paths          struct {
-		bGitTempPath string
-		bGitPath     string
-		headPath     string
-		IndexPath    string
-		objectPath   string
-		refsPath     string
+		bGitTempPath   string
+		bGitPath       string
+		headPath       string
+		IndexPath      string
+		objectPath     string
+		refsPath       string
+		bGitIgnorePath string
 	}
 	Email string
 	Store store.Store
@@ -36,6 +38,7 @@ func Init() error {
 
 var bGitFolder = ".bgit"
 var bGitTempFolder = ".bGitemp"
+var bGitIgnoreFile = ".bgitignore"
 
 func GetRepository(user string) Repository {
 	rooPath, _ := os.Getwd()
@@ -56,6 +59,7 @@ func GetRepository(user string) Repository {
 	currentRepository.Paths.IndexPath = filepath.Join(bGitFoderPath, "index")
 	currentRepository.Paths.objectPath = filepath.Join(bGitFoderPath, "objects")
 	currentRepository.Paths.refsPath = filepath.Join(bGitFoderPath, "refs/heads")
+	currentRepository.Paths.bGitIgnorePath = filepath.Join(currentRepository.WorkTree, bGitIgnoreFile)
 	currentRepository.Store = store.New(currentRepository.Paths.objectPath)
 	return currentRepository
 }
@@ -119,7 +123,25 @@ func (r *Repository) UpdateRefHead(commit string) error {
 	return err
 }
 
-// func (r *Repository) UpdateIndex(rootTree object.BGitObject) error {
-// 	data := rootTree.FormatToIndex()
-// 	return os.WriteFile(r.Paths.IndexPath, []byte(data), 0644)
-// }
+func (r *Repository) getIgnoredPaths() (map[string]bool, error) {
+	ignoredPaths := make(map[string]bool)
+	file, err := os.Open(r.Paths.bGitIgnorePath)
+	if err != nil {
+		return nil, err
+	}
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		if err := scanner.Err(); err != nil {
+			continue
+		}
+		path := scanner.Text()
+		if path == "" {
+			continue
+		}
+
+		absPath := filepath.Join(r.WorkTree, path)
+		ignoredPaths[absPath] = true
+	}
+	return ignoredPaths, nil
+}

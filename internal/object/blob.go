@@ -7,26 +7,26 @@ import (
 )
 
 type Blob struct {
-	content   string
-	name      string
-	hash      []byte
-	mode      fs.FileMode
-	size      int64
-	modTime   time.Time
-	sytemPath string
+	content string
+	name    string
+	hash    []byte
+	mode    fs.FileMode
+	size    int64
+	modTime time.Time
+	relPath string
 }
 
-func NewBlob(content string, name string, mode fs.FileMode, modTime time.Time, size int64, sytemPath string) *Blob {
+func NewBlob(content string, name string, mode fs.FileMode, modTime time.Time, size int64, relPath string) *Blob {
 	hash := generateSHA1Hash(content)
 
 	blob := &Blob{
-		hash:      hash,
-		content:   content,
-		name:      name,
-		mode:      mode,
-		modTime:   modTime,
-		size:      size,
-		sytemPath: sytemPath,
+		hash:    hash,
+		content: content,
+		name:    name,
+		mode:    mode,
+		modTime: modTime,
+		size:    size,
+		relPath: relPath,
 	}
 
 	fmt.Printf("Creating new blob for: %s hash: %s \n", blob.name, GetSha1AsString(blob.hash))
@@ -46,7 +46,7 @@ func (b *Blob) ToString() string {
 }
 
 func (b *Blob) FormatToIndex() string {
-	return fmt.Sprintf("%s %d %s %s\n", GetSha1AsString(b.GetHash()), b.size, b.sytemPath, b.modTime.Format(time.RFC3339))
+	return fmt.Sprintf("%s %d %s %s\n", GetSha1AsString(b.GetHash()), b.size, b.relPath, b.modTime.Format(time.RFC3339))
 }
 
 func (b *Blob) GetType() string {

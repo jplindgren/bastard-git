@@ -36,6 +36,7 @@ type DiffResult struct {
 func (r *Repository) Diff() ([]DiffResult, error) {
 	toBeCommited := []DiffResult{}
 
+	ignoredPaths, _ := r.getIgnoredPaths()
 	indexFiles, err := r.readIndex()
 	if err != nil {
 		return nil, err
@@ -46,13 +47,22 @@ func (r *Repository) Diff() ([]DiffResult, error) {
 			return err
 		}
 
-		if info.IsDir() || strings.Contains(path, r.BGitFolder) {
+		if info.IsDir() || strings.Contains(path, r.BGitFolder) || strings.Contains(path, bGitIgnoreFile) {
 			return nil
+		}
+
+		if _, ok := ignoredPaths[path]; ok {
+			return nil
+		}
+
+		relPath, err := filepath.Rel(r.WorkTree, path)
+		if err != nil {
+			return err
 		}
 
 		found := false
 		for _, idxFile := range indexFiles {
-			if idxFile.name == path {
+			if idxFile.name == relPath {
 				found = true
 				if info.ModTime().Format(time.RFC3339) != idxFile.modTime {
 					toBeCommited = append(toBeCommited, DiffResult{Name: info.Name(), Status: MODIFY})

@@ -37,6 +37,10 @@ Each file represents one branch, and the branch is just a pointer to a commit (t
 
 File containing the state of the repo at the time. In real GIT the index is updated when the user adds a file to stage. **BGIT** only does that when the user commits. We can get the diff of files to add/modify/delete comparing the index with the working tree.
 
+## Ignore files
+
+If you want to ignore files, create a file called `.bgitignore` and add one relative path per line. Wildcards are not allowed atm.
+
 ## What BGIT does not have
 
 - Concept of stage. In the real GIT, when the user does `git add <filename>`, he is generating the blob object and adding an entry to the index, and this file starts to be tracked by GIT. You can even switch branches and this file will still be tracked. Here for simplicity I did not implemented the concept of stage. Any file added to the repo will be commited and if you switch branches without commting them, they will BE LOST.
@@ -51,9 +55,9 @@ File containing the state of the repo at the time. In real GIT the index is upda
 
 ## To Be Implemented
 
-- .bgitignore
-- clone?
 - reflog and `bgit log` command
+- reset
+- clone?
 
 ## References and related links
 

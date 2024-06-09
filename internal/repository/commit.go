@@ -10,7 +10,9 @@ import (
 
 func (r *Repository) Commit(message string) error {
 	var buffer bytes.Buffer
-	rootTree, err := r.writeTree(r.WorkTree, &buffer)
+
+	ignoredPaths, _ := r.getIgnoredPaths()
+	rootTree, err := r.writeTree(r.WorkTree, &buffer, ignoredPaths)
 	if err != nil {
 		return err
 	}
@@ -48,8 +50,8 @@ func (r *Repository) lookupLastCommit() (string, error) {
 
 // TODO: change indexEntries to be a struct? or keep as string?
 // writeTree still loads all file contents to memory. Maybe change store.Write to receive the content via parameter, and keep the object trees lean?
-func (r *Repository) writeTree(dirPath string, indexEntries *bytes.Buffer) (*object.Tree, error) {
-	entries, dirInfo, err := utils.ReadDir(dirPath, true)
+func (r *Repository) writeTree(treePath string, indexEntries *bytes.Buffer, ignoredPaths map[string]bool) (*object.Tree, error) {
+	entries, dirInfo, err := utils.ReadDir(treePath, true)
 	if err != nil {
 		return nil, err
 	}
@@ -61,30 +63,48 @@ func (r *Repository) writeTree(dirPath string, indexEntries *bytes.Buffer) (*obj
 				continue
 			}
 
-			innerTree, err := r.writeTree(filepath.Join(dirPath, entry.Name()), indexEntries)
+			innerTree, err := r.writeTree(filepath.Join(treePath, entry.Name()), indexEntries, ignoredPaths)
 			if err != nil {
 				return nil, err
+			}
+
+			if innerTree == nil {
+				continue
 			}
 
 			objs = append(objs, innerTree)
 		} else {
-			path := filepath.Join(dirPath, entry.Name())
+			if entry.Name() == bGitIgnoreFile { //ignore special files
+				continue
+			}
+			absFilePath := filepath.Join(treePath, entry.Name())
 
-			fBuffer, fInfo, err := utils.ReadFile(path, true)
+			if _, ok := ignoredPaths[absFilePath]; ok {
+				continue
+			}
+
+			fBuffer, fInfo, err := utils.ReadFile(absFilePath, true)
 			if err != nil {
 				return nil, err
 			}
 
-			fileName := filepath.Base(fInfo.Name())
-			filePath := fInfo.Name()
-			bGitBlob := object.NewBlob(fBuffer.String(), fileName, fInfo.Mode(), fInfo.ModTime(), fInfo.Size(), filePath)
+			relFilePath, err := filepath.Rel(r.WorkTree, absFilePath)
+			if err != nil {
+				return nil, err
+			}
+
+			bGitBlob := object.NewBlob(fBuffer.String(), entry.Name(), fInfo.Mode(), fInfo.ModTime(), fInfo.Size(), relFilePath)
 			r.Store.Write(bGitBlob)
 
 			objs = append(objs, bGitBlob)
 		}
 	}
 
-	tree := object.NewTree(objs, dirPath, dirInfo.Mode(), dirInfo.ModTime())
+	if len(objs) == 0 { // ignore trees with no objects
+		return nil, nil
+	}
+
+	tree := object.NewTree(objs, treePath, dirInfo.Mode(), dirInfo.ModTime())
 	err = r.Store.Write(tree)
 	if err != nil {
 		return nil, err
