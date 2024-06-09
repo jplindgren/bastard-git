@@ -19,8 +19,7 @@ var statusCmd = &cobra.Command{
 
 		fmt.Println("Getting status")
 
-		reader := &repository.FileSystemReader{}
-		toBeCommited, err := reader.Diff(repo.WorkTree)
+		toBeCommited, err := repo.Diff()
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)

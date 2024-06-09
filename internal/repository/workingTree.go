@@ -67,7 +67,7 @@ func RecreateWorkingTree(treeHash string) error {
 	}
 
 	// Write updated index
-	return repo.SetIndex(idxBuffer.Bytes())
+	return repo.updateIndex(&idxBuffer)
 }
 
 func (r *Repository) RecreateWorkingTree(treeHash string, path string, index *bytes.Buffer) error {

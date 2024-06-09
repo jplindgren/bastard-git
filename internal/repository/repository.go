@@ -6,7 +6,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/jplindgren/bastard-git/internal/object"
 	"github.com/jplindgren/bastard-git/internal/store"
 )
 
@@ -120,11 +119,7 @@ func (r *Repository) UpdateRefHead(commit string) error {
 	return err
 }
 
-func (r *Repository) UpdateIndex(rootTree object.BGitObject) error {
-	data := rootTree.FormatToIndex()
-	return os.WriteFile(r.Paths.IndexPath, []byte(data), 0644)
-}
-
-func (r *Repository) SetIndex(content []byte) error {
-	return os.WriteFile(r.Paths.IndexPath, content, 0644)
-}
+// func (r *Repository) UpdateIndex(rootTree object.BGitObject) error {
+// 	data := rootTree.FormatToIndex()
+// 	return os.WriteFile(r.Paths.IndexPath, []byte(data), 0644)
+// }

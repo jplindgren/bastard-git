@@ -26,7 +26,7 @@ func (r *Repository) Commit(message string) error {
 		return err
 	}
 
-	r.updateIndexNew(&buffer)
+	r.updateIndex(&buffer)
 	r.UpdateRefHead(commit.ToString())
 	return nil
 }
