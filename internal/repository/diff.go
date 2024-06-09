@@ -37,6 +37,7 @@ func (r *Repository) Diff() ([]DiffResult, error) {
 	toBeCommited := []DiffResult{}
 
 	ignoredPaths, _ := r.getIgnoredPaths()
+
 	indexFiles, err := r.readIndex()
 	if err != nil {
 		return nil, err
@@ -47,7 +48,7 @@ func (r *Repository) Diff() ([]DiffResult, error) {
 			return err
 		}
 
-		if info.IsDir() || strings.Contains(path, r.BGitFolder) || strings.Contains(path, bGitIgnoreFile) {
+		if info.IsDir() || strings.Contains(path, r.BGitFolder) {
 			return nil
 		}
 

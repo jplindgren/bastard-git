@@ -32,22 +32,6 @@ var commitCmd = &cobra.Command{
 
 		fmt.Println("Creating commit with message: " + message)
 
-		// rootTree, err := repository.GenerateObjectTree(repo.WorkTree)
-		// check(err)
-
-		// //TODO: commit should check if a previous commit exists and set it as parent
-		// branch, err := repo.GetCurrentBranch()
-		// check(err)
-
-		// commitHash, _, err := repo.GetBranchTip(branch)
-		// check(err)
-
-		// commit := object.NewCommit(repo.Email, message, rootTree.GetHash(), []string{commitHash})
-		// err = repo.Store.Write(commit)
-		// check(err)
-
-		// repo.UpdateIndex(rootTree)
-		// repo.UpdateRefHead(commit.ToString())
 		if err := repo.Commit(message); err != nil {
 			fmt.Fprintln(os.Stdout, err)
 			os.Exit(1)

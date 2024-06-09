@@ -36,6 +36,7 @@ func Init() error {
 	return err
 }
 
+var bGitBinaryName = "bgit"
 var bGitFolder = ".bgit"
 var bGitTempFolder = ".bGitemp"
 var bGitIgnoreFile = ".bgitignore"
@@ -43,11 +44,11 @@ var bGitIgnoreFile = ".bgitignore"
 func GetRepository(user string) Repository {
 	rooPath, _ := os.Getwd()
 
-	testFolder := "srctest"
+	testRepo := os.Getenv("BGIT_TEST_REPO") //can be used to tesst bgit commands
 
 	currentRepository := Repository{}
 	currentRepository.Email = user
-	currentRepository.WorkTree = filepath.Join(rooPath, testFolder)
+	currentRepository.WorkTree = filepath.Join(rooPath, testRepo)
 	currentRepository.bGitTempFolder = bGitTempFolder
 	currentRepository.BGitFolder = bGitFolder
 
@@ -125,9 +126,14 @@ func (r *Repository) UpdateRefHead(commit string) error {
 
 func (r *Repository) getIgnoredPaths() (map[string]bool, error) {
 	ignoredPaths := make(map[string]bool)
+
+	// Add .bgitignore file to the ignored paths
+	ignoredPaths[r.Paths.bGitIgnorePath] = true
+	ignoredPaths[filepath.Join(r.WorkTree, bGitBinaryName)] = true
+
 	file, err := os.Open(r.Paths.bGitIgnorePath)
 	if err != nil {
-		return nil, err
+		return ignoredPaths, err
 	}
 
 	scanner := bufio.NewScanner(file)

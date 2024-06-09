@@ -58,12 +58,18 @@ func (r *Repository) writeTree(treePath string, indexEntries *bytes.Buffer, igno
 
 	var objs []object.BGitObject
 	for _, entry := range entries {
+
+		absEntryPath := filepath.Join(treePath, entry.Name())
+		if _, ok := ignoredPaths[absEntryPath]; ok {
+			continue
+		}
+
 		if entry.IsDir() {
-			if entry.Name() == r.BGitFolder { //ignore special folder
+			if entry.Name() == r.BGitFolder { //ignore bgit folder
 				continue
 			}
 
-			innerTree, err := r.writeTree(filepath.Join(treePath, entry.Name()), indexEntries, ignoredPaths)
+			innerTree, err := r.writeTree(absEntryPath, indexEntries, ignoredPaths)
 			if err != nil {
 				return nil, err
 			}
@@ -74,21 +80,12 @@ func (r *Repository) writeTree(treePath string, indexEntries *bytes.Buffer, igno
 
 			objs = append(objs, innerTree)
 		} else {
-			if entry.Name() == bGitIgnoreFile { //ignore special files
-				continue
-			}
-			absFilePath := filepath.Join(treePath, entry.Name())
-
-			if _, ok := ignoredPaths[absFilePath]; ok {
-				continue
-			}
-
-			fBuffer, fInfo, err := utils.ReadFile(absFilePath, true)
+			fBuffer, fInfo, err := utils.ReadFile(absEntryPath, true)
 			if err != nil {
 				return nil, err
 			}
 
-			relFilePath, err := filepath.Rel(r.WorkTree, absFilePath)
+			relFilePath, err := filepath.Rel(r.WorkTree, absEntryPath)
 			if err != nil {
 				return nil, err
 			}

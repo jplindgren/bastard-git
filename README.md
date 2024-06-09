@@ -41,6 +41,36 @@ File containing the state of the repo at the time. In real GIT the index is upda
 
 If you want to ignore files, create a file called `.bgitignore` and add one relative path per line. Wildcards are not allowed atm.
 
+## How to run
+
+- set env variables
+
+```bash
+export BGIT_TEST_REPO="srctest"
+export BGIT_USER="email@gmail.com"
+```
+
+- run make build
+
+```bash
+  make build
+```
+
+- create a folder with the same name as set in `BGIT_TEST_REPO` and init the repo
+
+```bash
+  mkdir $BGIT_TEST_REPO
+  ./bgit init
+```
+
+- run status to check and add a new file to commit
+
+```bash
+  ./bgit status
+  /* add file to folder defined in `BGIT_TEST_REPO` */
+  ./bgit commit "your message"
+```
+
 ## What BGIT does not have
 
 - Concept of stage. In the real GIT, when the user does `git add <filename>`, he is generating the blob object and adding an entry to the index, and this file starts to be tracked by GIT. You can even switch branches and this file will still be tracked. Here for simplicity I did not implemented the concept of stage. Any file added to the repo will be commited and if you switch branches without commting them, they will BE LOST.
