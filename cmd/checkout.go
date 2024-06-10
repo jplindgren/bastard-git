@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/jplindgren/bastard-git/internal/repository"
 	"github.com/spf13/cobra"
@@ -42,7 +43,7 @@ var checkoutCmd = &cobra.Command{
 
 		if len(args) == 1 {
 			//get last tree
-			_, treeHash, err := repo.GetBranchTip(args[0])
+			_, treeHash, err := repo.GetBranchTip(filepath.Join(repository.BGitRefsHeads, args[0]))
 			if err != nil {
 				fmt.Fprintln(os.Stderr, err)
 				os.Exit(1)
@@ -54,7 +55,7 @@ var checkoutCmd = &cobra.Command{
 				os.Exit(1)
 			}
 
-			repo.SetHEAD(args[0])
+			repo.SetHead(args[0])
 
 			os.Stdout.WriteString("Switched to branch " + args[0])
 		}

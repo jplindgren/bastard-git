@@ -24,7 +24,7 @@ func (r *Repository) addFileToIndex(filePath string) error {
 func (r *Repository) readIndex() ([]IndexEntry, error) {
 	indexEntries := []IndexEntry{}
 
-	file, err := os.Open(r.Paths.IndexPath)
+	file, err := os.Open(r.paths.IndexPath)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return indexEntries, nil
@@ -58,5 +58,5 @@ func (r *Repository) readIndex() ([]IndexEntry, error) {
 }
 
 func (r *Repository) updateIndex(buffer *bytes.Buffer) error {
-	return os.WriteFile(r.Paths.IndexPath, buffer.Bytes(), 0644)
+	return os.WriteFile(r.paths.IndexPath, buffer.Bytes(), 0644)
 }

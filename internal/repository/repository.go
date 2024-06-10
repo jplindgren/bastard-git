@@ -16,7 +16,7 @@ type Repository struct {
 	WorkTree       string
 	BGitFolder     string
 	bGitTempFolder string
-	Paths          struct {
+	paths          struct {
 		bGitTempPath   string
 		bGitPath       string
 		headPath       string
@@ -24,6 +24,10 @@ type Repository struct {
 		objectPath     string
 		refsPath       string
 		bGitIgnorePath string
+		logs           struct {
+			path string
+			head string
+		}
 	}
 	Email string
 	Store store.Store
@@ -38,8 +42,10 @@ func Init() error {
 
 var bGitBinaryName = "bgit"
 var bGitFolder = ".bgit"
+var bGitLogsFolder = "logs"
 var bGitTempFolder = ".bGitemp"
 var bGitIgnoreFile = ".bgitignore"
+var BGitRefsHeads = "refs/heads"
 
 func GetRepository(user string) Repository {
 	rooPath, _ := os.Getwd()
@@ -52,21 +58,28 @@ func GetRepository(user string) Repository {
 	currentRepository.bGitTempFolder = bGitTempFolder
 	currentRepository.BGitFolder = bGitFolder
 
-	bGitFoderPath := filepath.Join(currentRepository.WorkTree, bGitFolder)
+	bGitFolderPath := filepath.Join(currentRepository.WorkTree, bGitFolder)
 
-	currentRepository.Paths.bGitTempPath = filepath.Join(currentRepository.WorkTree, bGitTempFolder)
-	currentRepository.Paths.bGitPath = bGitFoderPath
-	currentRepository.Paths.headPath = filepath.Join(bGitFoderPath, "HEAD")
-	currentRepository.Paths.IndexPath = filepath.Join(bGitFoderPath, "index")
-	currentRepository.Paths.objectPath = filepath.Join(bGitFoderPath, "objects")
-	currentRepository.Paths.refsPath = filepath.Join(bGitFoderPath, "refs/heads")
-	currentRepository.Paths.bGitIgnorePath = filepath.Join(currentRepository.WorkTree, bGitIgnoreFile)
-	currentRepository.Store = store.New(currentRepository.Paths.objectPath)
+	currentRepository.paths.bGitTempPath = filepath.Join(currentRepository.WorkTree, bGitTempFolder)
+	currentRepository.paths.bGitPath = bGitFolderPath
+	currentRepository.paths.headPath = filepath.Join(bGitFolderPath, "HEAD")
+	currentRepository.paths.IndexPath = filepath.Join(bGitFolderPath, "index")
+	currentRepository.paths.objectPath = filepath.Join(bGitFolderPath, "objects")
+	currentRepository.paths.refsPath = filepath.Join(bGitFolderPath, BGitRefsHeads)
+	currentRepository.paths.logs = struct {
+		path string
+		head string
+	}{
+		path: filepath.Join(bGitFolderPath, bGitLogsFolder),
+		head: filepath.Join(bGitFolderPath, bGitLogsFolder, "HEAD"),
+	}
+	currentRepository.paths.bGitIgnorePath = filepath.Join(currentRepository.WorkTree, bGitIgnoreFile)
+	currentRepository.Store = store.New(currentRepository.paths.objectPath)
 	return currentRepository
 }
 
 func (r *Repository) IsValid() bool {
-	_, err := os.Stat(r.Paths.bGitPath)
+	_, err := os.Stat(r.paths.bGitPath)
 	if os.IsNotExist(err) {
 		fmt.Fprintln(os.Stderr, "Not a git repository")
 		return false
@@ -81,40 +94,55 @@ func (r *Repository) IsValid() bool {
 }
 
 func (r *Repository) createGitInfra() error {
-	err := os.MkdirAll(r.Paths.objectPath, fs.ModePerm)
+	err := os.MkdirAll(r.paths.objectPath, fs.ModePerm)
 	if err != nil {
 		return err
 	}
 
-	err = os.MkdirAll(r.Paths.refsPath, fs.ModePerm)
+	err = os.MkdirAll(r.paths.refsPath, fs.ModePerm)
 	if err != nil {
-		fmt.Printf("Error setting HEAD: %s \n", err)
-		os.Exit(1)
+		return err
 	}
-	r.SetHEAD(initialBranch)
+	r.SetHead(initialBranch)
+
+	err = os.MkdirAll(r.paths.logs.path, fs.ModePerm)
+	if err != nil {
+		return err
+	}
+
+	err = os.MkdirAll(filepath.Join(r.paths.logs.path, BGitRefsHeads), fs.ModePerm)
+	if err != nil {
+		return err
+	}
 
 	fmt.Printf("Initialized empty Git repository in %s/.bgit/ \n", r.WorkTree)
 	return nil
 }
 
-func (r *Repository) SetHEAD(branch string) {
-	err := os.WriteFile(r.Paths.headPath, []byte(fmt.Sprintf("refs/heads/%s", branch)), 0644)
+func (r *Repository) SetHead(branch string) {
+	err := os.WriteFile(r.paths.headPath, []byte(fmt.Sprintf("refs/heads/%s", branch)), 0644)
 	if err != nil {
 		fmt.Printf("Error setting HEAD: %s \n", err)
 		os.Exit(1)
 	}
 }
 
-func (r *Repository) UpdateRefHead(commit string) error {
-	content, err := os.ReadFile(r.Paths.headPath) //extract?
+func (r *Repository) getHeadRef() (string, string, error) {
+	content, err := os.ReadFile(r.paths.headPath)
 	if err != nil {
-		fmt.Printf("Error reading HEAD %s \n", err)
-		os.Exit(1)
+		return "", "", err
+	}
+	ref := string(content)
+	return ref, filepath.Join(r.paths.bGitPath, ref), nil
+}
+
+func (r *Repository) updateRefHead(commit string) error {
+	_, headRefPath, err := r.getHeadRef()
+	if err != nil {
+		return err
 	}
 
-	path := string(content)
-	completePath := filepath.Join(r.Paths.bGitPath, path)
-	file, err := os.OpenFile(completePath, os.O_CREATE|os.O_WRONLY, 0644)
+	file, err := os.OpenFile(headRefPath, os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return err
 	}
@@ -128,10 +156,10 @@ func (r *Repository) getIgnoredPaths() (map[string]bool, error) {
 	ignoredPaths := make(map[string]bool)
 
 	// Add .bgitignore file to the ignored paths
-	ignoredPaths[r.Paths.bGitIgnorePath] = true
+	ignoredPaths[r.paths.bGitIgnorePath] = true
 	ignoredPaths[filepath.Join(r.WorkTree, bGitBinaryName)] = true
 
-	file, err := os.Open(r.Paths.bGitIgnorePath)
+	file, err := os.Open(r.paths.bGitIgnorePath)
 	if err != nil {
 		return ignoredPaths, err
 	}

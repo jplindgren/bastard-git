@@ -4,6 +4,7 @@ BINARY_NAME := "bgit"
 .PHONY: all clean test test-verbose run build help init
 
 all: clean build test
+prepare: clean build init
 
 clean:
 	@echo "Cleaning"

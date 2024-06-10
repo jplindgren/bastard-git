@@ -43,20 +43,19 @@ If you want to ignore files, create a file called `.bgitignore` and add one rela
 
 ## How to run
 
-- set env variables
+- run make build
+
+- set user
 
 ```bash
-export BGIT_TEST_REPO="srctest"
 export BGIT_USER="email@gmail.com"
 ```
-
-- run make build
 
 ```bash
   make build
 ```
 
-- create a folder with the same name as set in `BGIT_TEST_REPO` and init the repo
+- you can just copy the executable to a specific folder and use it, or you can set the `export BGIT_TEST_REPO="srctest"` and create inside the repo with the same name.
 
 ```bash
   mkdir $BGIT_TEST_REPO
@@ -105,3 +104,6 @@ https://github.com/git/git/blob/v2.21.1/commit.c
 https://www.freecodecamp.org/news/boost-programming-skills-read-git-code/
 https://git-scm.com/book/en/v2/Git-Internals-Git-Objects
 https://www.freecodecamp.org/news/git-internals-objects-branches-create-repo/
+
+About HEAD and all it means
+https://jvns.ca/blog/2024/03/08/how-head-works-in-git/

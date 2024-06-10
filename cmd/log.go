@@ -1,3 +1,6 @@
+/*
+Copyright © 2024 NAME HERE <EMAIL ADDRESS>
+*/
 package cmd
 
 import (
@@ -8,26 +11,24 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var branchCmd = &cobra.Command{
-	Use:   "branch",
-	Short: "List, create, or delete branches",
+var logCmd = &cobra.Command{
+	Use:   "log",
+	Short: "Show commit logs",
+
 	Run: func(cmd *cobra.Command, args []string) {
 		repo := repository.GetRepository(cfg.user)
 		if !repo.IsValid() {
 			os.Exit(1)
-
 		}
 
-		branch, _, err := repo.GetCurrentBranch()
+		err := repo.GetLogsForCurrentBranch()
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		}
-
-		fmt.Fprintln(os.Stdout, branch)
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(branchCmd)
+	rootCmd.AddCommand(logCmd)
 }

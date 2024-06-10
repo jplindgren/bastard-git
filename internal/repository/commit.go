@@ -17,7 +17,7 @@ func (r *Repository) Commit(message string) error {
 		return err
 	}
 
-	lastCommit, err := r.lookupLastCommit()
+	lastCommit, branchRef, err := r.lookupLastCommit()
 	if err != nil {
 		return err
 	}
@@ -28,24 +28,40 @@ func (r *Repository) Commit(message string) error {
 		return err
 	}
 
-	r.updateIndex(&buffer)
-	r.UpdateRefHead(commit.ToString())
-	return nil
+	err = r.updateIndex(&buffer)
+	if err != nil {
+		return err
+	}
+
+	//TODO: rework logs. updateRefHead knows the refHead, and should be able to log the commit.
+	//Also, both logs may have the same contract
+	err = r.updateRefHead(commit.ToString())
+	if err != nil {
+		return err
+	}
+
+	err = r.logHeadRef(branchRef, lastCommit, commit.ToString(), commit.CreatedAt, message)
+	if err != nil {
+		return err
+	}
+
+	err = r.logHead(COMMIT, lastCommit, commit.ToString(), commit.CreatedAt, message)
+	return err
 }
 
-func (r *Repository) lookupLastCommit() (string, error) {
-	//TODO: commit should check if a previous commit exists and set it as parent
-	branch, err := r.GetCurrentBranch()
+// Returns the last commit hash and branch ref
+func (r *Repository) lookupLastCommit() (string, string, error) {
+	_, branchRef, err := r.GetCurrentBranch()
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
-	commitHash, _, err := r.GetBranchTip(branch)
+	commitHash, _, err := r.GetBranchTip(branchRef)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
-	return commitHash, nil
+	return commitHash, branchRef, nil
 }
 
 // TODO: change indexEntries to be a struct? or keep as string?

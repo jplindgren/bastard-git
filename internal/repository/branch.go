@@ -1,32 +1,36 @@
 package repository
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 func (r *Repository) CreateBranch(branch string) error {
 	//copy from last branch
-	branchRefHead, err := os.ReadFile(r.Paths.headPath)
+	branchRefHead, err := os.ReadFile(r.paths.headPath)
 	if err != nil {
 		return err
 	}
 
-	lastCommit, err := os.ReadFile(filepath.Join(r.Paths.bGitPath, string(branchRefHead)))
+	lastCommit, err := os.ReadFile(filepath.Join(r.paths.bGitPath, string(branchRefHead)))
 	if err != nil {
 		return err
 	}
 
-	r.SetHEAD(branch)
-	r.UpdateRefHead(string(lastCommit))
+	sLastCommit := string(lastCommit)
+	r.SetHead(branch)
+	r.updateRefHead(sLastCommit)
+	r.logHead(CHECKOUT, sLastCommit, sLastCommit, time.Now(), fmt.Sprintf("moving from %s to %s", string(branchRefHead), branch))
 
 	//no need to update the index, since new branches points to the same commit
 	return nil
 }
 
 func (r *Repository) BranchList() ([]string, error) {
-	dirEntries, err := os.ReadDir(r.Paths.refsPath)
+	dirEntries, err := os.ReadDir(r.paths.refsPath)
 	if err != nil {
 		return nil, err
 	}
@@ -39,8 +43,8 @@ func (r *Repository) BranchList() ([]string, error) {
 	return branches, nil
 }
 
-func (r *Repository) GetBranchTip(branch string) (string, string, error) {
-	bCommitHash, err := os.ReadFile(filepath.Join(r.Paths.refsPath, branch))
+func (r *Repository) GetBranchTip(branchRef string) (string, string, error) {
+	bCommitHash, err := os.ReadFile(filepath.Join(r.paths.bGitPath, branchRef))
 	if err != nil {
 		if os.IsNotExist(err) { //no commits yet
 			return "", "", nil
@@ -64,11 +68,13 @@ func (r *Repository) GetBranchTip(branch string) (string, string, error) {
 	return commitHash, treeHash, nil
 }
 
-func (r *Repository) GetCurrentBranch() (string, error) {
-	content, err := os.ReadFile(r.Paths.headPath)
+// returns the current branch name and the full reference path
+func (r *Repository) GetCurrentBranch() (string, string, error) {
+	content, err := os.ReadFile(r.paths.headPath)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
-	return strings.TrimPrefix(string(content), "refs/heads/"), nil
+	sContent := string(content)
+	return strings.TrimPrefix(sContent, BGitRefsHeads), sContent, nil
 }

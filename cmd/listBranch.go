@@ -24,7 +24,7 @@ var listBranchCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		currBranch, err := repo.GetCurrentBranch()
+		currBranch, _, err := repo.GetCurrentBranch()
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)

@@ -36,13 +36,13 @@ func RecreateWorkingTree(treeHash string) error {
 	repo := GetRepository("")
 
 	// Create temp folder
-	err := os.Mkdir(repo.Paths.bGitTempPath, 0755)
+	err := os.Mkdir(repo.paths.bGitTempPath, 0755)
 	if err != nil {
 		return err
 	}
 
 	// Use temp folder to rollback in case it fails
-	err = repo.RecreateWorkingTree(treeHash, repo.Paths.bGitTempPath, &idxBuffer)
+	err = repo.RecreateWorkingTree(treeHash, repo.paths.bGitTempPath, &idxBuffer)
 	if err != nil {
 		return err
 	}
@@ -50,18 +50,18 @@ func RecreateWorkingTree(treeHash string) error {
 	err = repo.DeleteWorkingTree()
 	if err != nil {
 		// Remove temp folder with new working tree if deleting the current one fails
-		os.RemoveAll(repo.Paths.bGitTempPath)
+		os.RemoveAll(repo.paths.bGitTempPath)
 		return err
 	}
 
 	//After use temp folder, we should copy content from it to working tree and delete it
-	err = utils.CopyDir(repo.WorkTree, repo.Paths.bGitTempPath)
+	err = utils.CopyDir(repo.WorkTree, repo.paths.bGitTempPath)
 	if err != nil {
 		return err
 	}
 
 	// Remove temp file
-	err = os.RemoveAll(repo.Paths.bGitTempPath)
+	err = os.RemoveAll(repo.paths.bGitTempPath)
 	if err != nil {
 		return err
 	}
