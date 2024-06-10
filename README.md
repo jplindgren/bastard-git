@@ -39,7 +39,7 @@ File containing the state of the repo at the time. In real GIT the index is upda
 
 ## Ignore files
 
-If you want to ignore files, create a file called `.bgitignore` and add one relative path per line. Wildcards are not allowed atm.
+If you want to ignore files, create a file called `.bgitignore` and add one relative path per line. Folders and Wildcards are not allowed atm.
 
 ## How to run
 
