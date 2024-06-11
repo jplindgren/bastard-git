@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 
 	"github.com/jplindgren/bastard-git/internal/repository"
 	"github.com/spf13/cobra"
@@ -41,11 +40,16 @@ var checkoutCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		if len(args) == 1 {
+		if len(args) == 1 { //switch branches
 			//get last tree
-			_, treeHash, err := repo.GetBranchTip(filepath.Join(repository.BGitRefsHeads, args[0]))
+			_, treeHash, err := repo.GetBranchTip(args[0])
 			if err != nil {
 				fmt.Fprintln(os.Stderr, err)
+				os.Exit(1)
+			}
+
+			if treeHash == "" {
+				fmt.Fprintln(os.Stdin, "Branch not found")
 				os.Exit(1)
 			}
 
@@ -67,7 +71,7 @@ var checkoutCmd = &cobra.Command{
 				os.Exit(1)
 			}
 
-			os.Stdout.WriteString("New branch created.\nSwitched to a new branch " + args[1])
+			fmt.Fprintf(os.Stdout, "New branch created.\nSwitched to a new branch %s"+args[1])
 		}
 	},
 }

@@ -76,12 +76,13 @@ export BGIT_USER="email@gmail.com"
   ./bgit commit "your message"
 ```
 
-## What BGIT does not have
+## What BGIT does not have (yet)
 
 - Concept of stage. In the real GIT, when the user does `git add <filename>`, it generates the blob object and adds an entry to the index, and this file starts to be tracked by GIT. You can even switch branches and this file will still be tracked. Here for simplicity, I did not implement the concept of stage. Any file added to the repo will be committed and if you switch branches without commting them, they will BE LOST.
 - .pack files. GIT has special treatments for big files, I did not dig deeper into it, but the idea is to optimize since regular files are always copied no matter how small were the changes. There is no concept of saving the diffs.
 - Parameters, a LOT of them. Each GIT command has MANY parameters to control every aspect of the command behavior. Here, for simplicity, we almost do not have parameters in the commands.
 - Config file. GIT uses global and local configs, which are basically files saved either on the local repo or in the user's home folder. BGIT for simplicity uses only the email which is set using the env variable `BGIT_USER`
+- Remove a file from the tracker
 - Merge and Rebase
 - Remotes
 - Stash
@@ -92,6 +93,8 @@ export BGIT_USER="email@gmail.com"
 
 - reflog and `bgit log` command
 - reset
+- remove file
+- add wildcards/folders to `.bgitignore`
 - clone?
 
 ## References and related links

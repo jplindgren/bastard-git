@@ -30,7 +30,7 @@ var createBranchCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		fmt.Fprintln(os.Stdout, "New branch created.\nSwitched to a new branch "+args[0])
+		fmt.Fprintf(os.Stdout, "New branch created.\nSwitched to a new branch %s"+args[0])
 	},
 }
 
