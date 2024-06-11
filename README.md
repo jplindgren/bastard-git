@@ -17,7 +17,7 @@ BGIT can mean anything, depending on your mood.
 
 **BGIT** is a CLI tool pet project that mimics a small set of features from GIT. Despite covering only a small part of GIT's functionalities, the basis of how the version controller works was maintained. The idea is to simulate as much as possible what we have in GIT. Head, Index, Objects, etc.
 
-As GIT does, bastard git stores the entire content/at each time under the `./bgit` folder. When you commit file(s) **BGIT** will create a tree of objects of 3 types.
+As GIT does, BGIT stores the entire content/at each time under the `./bgit` folder. When you commit file(s) **BGIT** will create a tree of objects of 3 types.
 A commit, one or more trees, and one or more blobs. The ref/head is updated to point to the recent commit. As it happens with GIT, each commit saves the entire state of the repo, not the diff, and differently from GIT we do not have special treatments for big files, so take care with them.
 **BGIT** should be able to reconstruct the working tree based on any commit at any time. In theory, for instance, cloning the repo is just copying the `./bgit` folder and reconstructing the working tree from the index.
 
