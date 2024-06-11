@@ -33,11 +33,11 @@ type Repository struct {
 	Store store.Store
 }
 
-func Init() error {
+func Init() (Repository, error) {
 	currentRepository := GetRepository("")
 
 	err := currentRepository.createGitInfra()
-	return err
+	return currentRepository, err
 }
 
 var bGitBinaryName = "bgit"

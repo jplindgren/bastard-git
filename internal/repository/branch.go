@@ -43,7 +43,13 @@ func (r *Repository) BranchList() ([]string, error) {
 	return branches, nil
 }
 
+// returns the last commit and tree hashes
 func (r *Repository) GetBranchTip(branchRef string) (string, string, error) {
+	// In case the client sends only the branch name, we append the refs/heads prefix
+	if !strings.Contains(branchRef, BGitRefsHeads) {
+		branchRef = filepath.Join(BGitRefsHeads, branchRef)
+	}
+
 	bCommitHash, err := os.ReadFile(filepath.Join(r.paths.bGitPath, branchRef))
 	if err != nil {
 		if os.IsNotExist(err) { //no commits yet

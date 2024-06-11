@@ -11,7 +11,9 @@ clean:
 	rm -f  $(BINARY_NAME) || true
 	rm -rf srctest/.bgit || true
 
-test: go test -v ./...
+test:
+	@echo "Testing"
+	go test -v ./...
 
 build:
 	@echo "Building $(PROJECT_NAME)"
