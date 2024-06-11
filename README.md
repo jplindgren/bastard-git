@@ -95,6 +95,7 @@ export BGIT_USER="email@gmail.com"
 - reset
 - remove file
 - add wildcards/folders to `.bgitignore`
+- destroy branch
 - clone?
 
 ## References and related links
