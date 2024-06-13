@@ -21,8 +21,8 @@ func (r *Repository) addFileToIndex(filePath string) error {
 	return nil
 }
 
-func (r *Repository) readIndex() ([]IndexEntry, error) {
-	indexEntries := []IndexEntry{}
+func (r *Repository) readIndex() (map[string]IndexEntry, error) {
+	indexEntries := make(map[string]IndexEntry)
 
 	file, err := os.Open(r.paths.IndexPath)
 	if err != nil {
@@ -47,11 +47,11 @@ func (r *Repository) readIndex() ([]IndexEntry, error) {
 			return nil, err
 		}
 
-		indexEntries = append(indexEntries, IndexEntry{
+		indexEntries[data[2]] = IndexEntry{
 			size:    size,
 			name:    data[2],
 			modTime: modTime.Format(time.RFC3339),
-		})
+		}
 	}
 
 	return indexEntries, nil

@@ -61,22 +61,23 @@ func (r *Repository) Diff() ([]DiffResult, error) {
 			return err
 		}
 
-		found := false
-		for _, idxFile := range indexFiles {
-			if idxFile.name == relPath {
-				found = true
-				if info.ModTime().Format(time.RFC3339) != idxFile.modTime {
-					toBeCommited = append(toBeCommited, DiffResult{Name: info.Name(), Status: MODIFY})
-				}
+		idxFile, ok := indexFiles[relPath]
+		if ok {
+			if info.ModTime().Format(time.RFC3339) != idxFile.modTime { //we could also improve and hash the file to compare
+				toBeCommited = append(toBeCommited, DiffResult{Name: info.Name(), Status: MODIFY})
 			}
-		}
-
-		if !found {
+			delete(indexFiles, relPath)
+		} else {
 			toBeCommited = append(toBeCommited, DiffResult{Name: info.Name(), Status: ADD})
 		}
 
 		return nil
 	})
+
+	// All files that are left in the dictionary are files that were removed from the working directory
+	for _, idxFile := range indexFiles {
+		toBeCommited = append(toBeCommited, DiffResult{Name: idxFile.name, Status: REMOVE})
+	}
 
 	return toBeCommited, nil
 }
