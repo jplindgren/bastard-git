@@ -35,7 +35,7 @@ func (r *Repository) Commit(message string) error {
 
 	//TODO: rework logs. updateRefHead knows the refHead, and should be able to log the commit.
 	//Also, both logs may have the same contract
-	err = r.updateRefHead(commit.ToString())
+	err = r.updateRefHead(commit.ToString(), branchRef)
 	if err != nil {
 		return err
 	}

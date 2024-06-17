@@ -17,12 +17,20 @@ func (r *Repository) CreateBranch(branch string) error {
 
 	lastCommit, err := os.ReadFile(filepath.Join(r.paths.bGitPath, string(branchRefHead)))
 	if err != nil {
-		return err
+		if !os.IsNotExist(err) {
+			return err
+		}
 	}
 
 	sLastCommit := string(lastCommit)
 	r.SetHead(branch)
-	r.updateRefHead(sLastCommit)
+
+	//in case of no commits yet, we do not update refHead and logs
+	if sLastCommit == "" {
+		return nil
+	}
+
+	r.updateRefHead(sLastCommit, string(branchRefHead))
 	r.logHead(CHECKOUT, sLastCommit, sLastCommit, time.Now(), fmt.Sprintf("moving from %s to %s", string(branchRefHead), branch))
 
 	//no need to update the index, since new branches points to the same commit
@@ -37,7 +45,15 @@ func (r *Repository) BranchList() ([]string, error) {
 
 	var branches []string
 	for _, entry := range dirEntries {
-		branches = append(branches, entry.Name())
+		if entry.IsDir() {
+			innerEntries, err := os.ReadDir(filepath.Join(r.paths.refsPath, entry.Name()))
+			if err != nil {
+				return nil, err
+			}
+			branches = append(branches, filepath.Join(entry.Name(), innerEntries[0].Name()))
+		} else {
+			branches = append(branches, entry.Name())
+		}
 	}
 
 	return branches, nil

@@ -37,13 +37,18 @@ func (r *Repository) logHead(logType HeadLogType, parentCommit string, commit st
 		parentCommit = "0000000000000000000000000000000000000000"
 	}
 
-	test := fmt.Sprintf("%s %s <%s> %s %s: %s\n", parentCommit, commit, r.Email, t.Format(time.RFC3339), logType.String(), message)
-	_, err = file.WriteString(test)
+	logEntry := fmt.Sprintf("%s %s <%s> %s %s: %s\n", parentCommit, commit, r.Email, t.Format(time.RFC3339), logType.String(), message)
+	_, err = file.WriteString(logEntry)
 	return err
 }
 
 func (r *Repository) logHeadRef(branchRef string, parentCommit string, commit string, t time.Time, message string) error {
-	file, err := os.OpenFile(filepath.Join(r.paths.logs.path, branchRef), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	branchRefPath := filepath.Join(r.paths.logs.path, branchRef)
+	if err := createPathFoldersIfNotExists(branchRefPath); err != nil {
+		return err
+	}
+
+	file, err := os.OpenFile(branchRefPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
 	if err != nil {
 		return err
 	}
@@ -53,8 +58,8 @@ func (r *Repository) logHeadRef(branchRef string, parentCommit string, commit st
 		parentCommit = "0000000000000000000000000000000000000000"
 	}
 
-	test := fmt.Sprintf("%s %s <%s> %s %s: %s\n", parentCommit, commit, r.Email, t.Format(time.RFC3339), "commit", message)
-	_, err = file.WriteString(test)
+	logEntry := fmt.Sprintf("%s %s <%s> %s %s: %s\n", parentCommit, commit, r.Email, t.Format(time.RFC3339), "commit", message)
+	_, err = file.WriteString(logEntry)
 	return err
 }
 

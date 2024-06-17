@@ -136,9 +136,9 @@ func (r *Repository) getHeadRef() (string, string, error) {
 	return ref, filepath.Join(r.paths.bGitPath, ref), nil
 }
 
-func (r *Repository) updateRefHead(commit string) error {
-	_, headRefPath, err := r.getHeadRef()
-	if err != nil {
+func (r *Repository) updateRefHead(commit string, refHead string) error {
+	headRefPath := filepath.Join(r.paths.bGitPath, string(refHead))
+	if err := createPathFoldersIfNotExists(headRefPath); err != nil {
 		return err
 	}
 
@@ -178,4 +178,20 @@ func (r *Repository) getIgnoredPaths() (map[string]bool, error) {
 		ignoredPaths[absPath] = true
 	}
 	return ignoredPaths, nil
+}
+
+func checkIfFileExists(path string) bool {
+	_, err := os.Stat(path)
+	return !os.IsNotExist(err)
+}
+
+func createPathFoldersIfNotExists(path string) error {
+	if !checkIfFileExists(path) {
+		dirPath := filepath.Dir(path)
+		err := os.MkdirAll(dirPath, fs.ModePerm)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
