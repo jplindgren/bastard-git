@@ -1,5 +1,7 @@
 # BGIT
 
+[![Build](https://github.com/jplindgren/bastard-git/actions/workflows/go.yml/badge.svg)](https://github.com/jplindgren/bastard-git/actions/workflows/go.yml)
+
 Simple git clone in GO.
 BGIT can mean anything, depending on your mood.
 
@@ -116,5 +118,3 @@ https://www.freecodecamp.org/news/git-internals-objects-branches-create-repo/
 About HEAD and all it means
 https://jvns.ca/blog/2024/03/08/how-head-works-in-git/
 
-
-[![CI](https://github.com/jplindgren/bastard-git/actions/workflows/go.yml/badge.svg)](https://github.com/jplindgren/bastard-git/actions/workflows/go.yml)

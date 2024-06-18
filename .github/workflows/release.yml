@@ -5,7 +5,7 @@ name: Release
 on:
   push:
     branches: [ "main" ]
-  workflow_dispatch:  
+  workflow_dispatch:
 
 jobs:
   test:
@@ -27,7 +27,9 @@ jobs:
     strategy:
       matrix:
         goosarch:
-          - 'aix/ppc64'
+          - 'linux/amd64'
+          - 'darwin/amd64'
+          - 'windows/amd64'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
