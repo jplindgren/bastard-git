@@ -17,7 +17,7 @@ test:
 
 build:
 	@echo "Building $(PROJECT_NAME)"
-	go build -o $(BINARY_NAME) main.go
+	CGO_ENABLED=0 go build -o $(BINARY_NAME) main.go
 	chmod +x $(BINARY_NAME)
 
 build-mac:
