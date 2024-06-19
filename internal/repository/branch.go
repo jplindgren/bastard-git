@@ -8,30 +8,22 @@ import (
 	"time"
 )
 
-func (r *Repository) CreateBranch(branch string) error {
+func (r *Repository) CreateBranch(newBranch string) error {
 	//copy from last branch
-	branchRefHead, err := os.ReadFile(r.paths.headPath)
+	lastCommit, currentBranchRef, err := r.lookupLastCommit()
 	if err != nil {
 		return err
 	}
 
-	lastCommit, err := os.ReadFile(filepath.Join(r.paths.bGitPath, string(branchRefHead)))
-	if err != nil {
-		if !os.IsNotExist(err) {
-			return err
-		}
-	}
-
-	sLastCommit := string(lastCommit)
-	r.SetHead(branch)
+	newBranchRef := r.SetHead(newBranch)
 
 	//in case of no commits yet, we do not update refHead and logs
-	if sLastCommit == "" {
+	if lastCommit == "" {
 		return nil
 	}
 
-	r.updateRefHead(sLastCommit, string(branchRefHead))
-	r.logHead(CHECKOUT, sLastCommit, sLastCommit, time.Now(), fmt.Sprintf("moving from %s to %s", string(branchRefHead), branch))
+	r.updateRefHead(lastCommit, newBranchRef)
+	r.logHead(CHECKOUT, lastCommit, lastCommit, time.Now(), fmt.Sprintf("moving from %s to %s", currentBranchRef, newBranchRef))
 
 	//no need to update the index, since new branches points to the same commit
 	return nil
