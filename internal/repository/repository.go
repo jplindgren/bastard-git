@@ -119,12 +119,14 @@ func (r *Repository) createGitInfra() error {
 	return nil
 }
 
-func (r *Repository) SetHead(branch string) {
-	err := os.WriteFile(r.paths.headPath, []byte(fmt.Sprintf("refs/heads/%s", branch)), 0644)
+func (r *Repository) SetHead(branch string) string {
+	branchRefHead := filepath.Join(BGitRefsHeads, branch)
+	err := os.WriteFile(r.paths.headPath, []byte(branchRefHead), 0644)
 	if err != nil {
 		fmt.Printf("Error setting HEAD: %s \n", err)
 		os.Exit(1)
 	}
+	return branchRefHead
 }
 
 func (r *Repository) getHeadRef() (string, string, error) {
@@ -158,6 +160,7 @@ func (r *Repository) getIgnoredPaths() (map[string]bool, error) {
 	// Add .bgitignore file to the ignored paths
 	ignoredPaths[r.paths.bGitIgnorePath] = true
 	ignoredPaths[filepath.Join(r.WorkTree, bGitBinaryName)] = true
+	ignoredPaths[filepath.Join(r.WorkTree, bGitBinaryName+".exe")] = true
 
 	file, err := os.Open(r.paths.bGitIgnorePath)
 	if err != nil {

@@ -71,7 +71,7 @@ var checkoutCmd = &cobra.Command{
 				os.Exit(1)
 			}
 
-			fmt.Fprintf(os.Stdout, "New branch created.\nSwitched to a new branch %s"+args[1])
+			fmt.Fprintf(os.Stdout, "New branch created.\nSwitched to a new branch %s", args[1])
 		}
 	},
 }

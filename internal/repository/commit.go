@@ -3,6 +3,7 @@ package repository
 import (
 	"bytes"
 	"path/filepath"
+	"strings"
 
 	"github.com/jplindgren/bastard-git/internal/object"
 	"github.com/jplindgren/bastard-git/internal/utils"
@@ -55,13 +56,14 @@ func (r *Repository) lookupLastCommit() (string, string, error) {
 	if err != nil {
 		return "", "", err
 	}
+	sanitizedBranchRef := strings.TrimRight(branchRef, "\n")
 
-	commitHash, _, err := r.GetBranchTip(branchRef)
+	commitHash, _, err := r.GetBranchTip(sanitizedBranchRef)
 	if err != nil {
 		return "", "", err
 	}
 
-	return commitHash, branchRef, nil
+	return commitHash, sanitizedBranchRef, nil
 }
 
 // TODO: change indexEntries to be a struct? or keep as string?
