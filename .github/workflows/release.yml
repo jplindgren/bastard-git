@@ -28,8 +28,6 @@ jobs:
       matrix:
         goosarch:
           - 'linux/amd64'
-          - 'darwin/amd64'
-          - 'windows/amd64'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -57,6 +55,7 @@ jobs:
         with:
           body_path: ".github/RELEASE-TEMPLATE.md"
           draft: true
-          files: ${{env.BINARY_NAME}}
+          files: bgit
+          #files: ${{env.BINARY_NAME}}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
