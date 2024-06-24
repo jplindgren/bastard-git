@@ -53,7 +53,7 @@ var checkoutCmd = &cobra.Command{
 				os.Exit(1)
 			}
 
-			err = repository.RecreateWorkingTree(treeHash)
+			err = repo.RecreateWorkingTree(treeHash)
 			if err != nil {
 				fmt.Fprintln(os.Stderr, err)
 				os.Exit(1)

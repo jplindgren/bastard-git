@@ -52,7 +52,3 @@ func (b *Blob) FormatToIndex() string {
 func (b *Blob) GetType() string {
 	return "blob"
 }
-
-func (b *Blob) Children() []BGitObject {
-	return []BGitObject{}
-}

@@ -91,3 +91,19 @@ func CopyDir(dst, src string) error {
 		return err
 	})
 }
+
+func CheckIfFileExists(path string) bool {
+	_, err := os.Stat(path)
+	return !os.IsNotExist(err)
+}
+
+func CreatePathFoldersIfNotExists(path string) error {
+	if !CheckIfFileExists(path) {
+		dirPath := filepath.Dir(path)
+		err := os.MkdirAll(dirPath, fs.ModePerm)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}

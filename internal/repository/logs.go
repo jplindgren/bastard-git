@@ -1,11 +1,15 @@
 package repository
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/jplindgren/bastard-git/internal/object"
+	"github.com/jplindgren/bastard-git/internal/utils"
 )
 
 const (
@@ -44,7 +48,7 @@ func (r *Repository) logHead(logType HeadLogType, parentCommit string, commit st
 
 func (r *Repository) logHeadRef(branchRef string, parentCommit string, commit string, t time.Time, message string) error {
 	branchRefPath := filepath.Join(r.paths.logs.path, branchRef)
-	if err := createPathFoldersIfNotExists(branchRefPath); err != nil {
+	if err := utils.CreatePathFoldersIfNotExists(branchRefPath); err != nil {
 		return err
 	}
 
@@ -75,7 +79,13 @@ func (r *Repository) GetLogsForCurrentBranch() error {
 			return err
 		}
 
+		cContent, found := bytes.CutPrefix(cContent, object.CommitPrefix)
+		if !found {
+			return fmt.Errorf("could not parse object as commit: %s", commitHash)
+		}
+
 		sContent := string(cContent)
+
 		fmt.Fprintf(os.Stdout, "commit %s\n%s\n\n*********************\n", commitHash, sContent)
 
 		lines := strings.Split(sContent, "\n")

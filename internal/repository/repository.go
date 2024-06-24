@@ -6,8 +6,11 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"time"
 
+	"github.com/jplindgren/bastard-git/internal/object"
 	"github.com/jplindgren/bastard-git/internal/store"
+	"github.com/jplindgren/bastard-git/internal/utils"
 )
 
 var initialBranch = "main"
@@ -129,18 +132,9 @@ func (r *Repository) SetHead(branch string) string {
 	return branchRefHead
 }
 
-func (r *Repository) getHeadRef() (string, string, error) {
-	content, err := os.ReadFile(r.paths.headPath)
-	if err != nil {
-		return "", "", err
-	}
-	ref := string(content)
-	return ref, filepath.Join(r.paths.bGitPath, ref), nil
-}
-
 func (r *Repository) updateRefHead(commit string, refHead string) error {
 	headRefPath := filepath.Join(r.paths.bGitPath, string(refHead))
-	if err := createPathFoldersIfNotExists(headRefPath); err != nil {
+	if err := utils.CreatePathFoldersIfNotExists(headRefPath); err != nil {
 		return err
 	}
 
@@ -183,18 +177,57 @@ func (r *Repository) getIgnoredPaths() (map[string]bool, error) {
 	return ignoredPaths, nil
 }
 
-func checkIfFileExists(path string) bool {
-	_, err := os.Stat(path)
-	return !os.IsNotExist(err)
-}
-
-func createPathFoldersIfNotExists(path string) error {
-	if !checkIfFileExists(path) {
-		dirPath := filepath.Dir(path)
-		err := os.MkdirAll(dirPath, fs.ModePerm)
-		if err != nil {
-			return err
-		}
+// Revert/Reset should have own file?
+func (r *Repository) Reset(commitHash string) error {
+	lastCommit, _, err := r.lookupLastCommit()
+	if err != nil {
+		return err
 	}
+
+	if commitHash == lastCommit {
+		return nil
+	}
+
+	// Get the tree hash from the commit
+	objData, err := r.Store.Get(commitHash)
+	if err != nil {
+		return err
+	}
+
+	commit, err := object.ParseCommit(objData, commitHash)
+	if err != nil {
+		return err
+	}
+
+	//Recreate the working tree from the tree hash
+	err = r.RecreateWorkingTree(string(commit.Tree))
+	if err != nil {
+		return err
+	}
+
+	// Update the HEAD ref
+	_, branchRef, err := r.GetCurrentBranch()
+	if err != nil {
+		return err
+	}
+
+	err = r.updateRefHead(commitHash, branchRef)
+	if err != nil {
+		return err
+	}
+
+	// Log the reset
+	time := time.Now()
+	err = r.logHeadRef(branchRef, commit.Parent[0], commitHash, time, "reset")
+	if err != nil {
+		return err
+	}
+
+	err = r.logHead(COMMIT, commit.Parent[0], commitHash, time, "reset")
+	if err != nil {
+		return err
+	}
+
+	fmt.Fprintf(os.Stdout, "HEAD is now at %s %s", commit, commit.Message)
 	return nil
 }

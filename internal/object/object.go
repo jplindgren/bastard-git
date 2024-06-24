@@ -5,6 +5,5 @@ type BGitObject interface {
 	GetHash() []byte
 	ToString() string
 	GetType() string
-	Children() []BGitObject
 	FormatToIndex() string
 }
