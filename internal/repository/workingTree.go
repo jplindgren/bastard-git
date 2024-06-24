@@ -31,46 +31,40 @@ func (r *Repository) DeleteWorkingTree() error {
 	return nil
 }
 
-func RecreateWorkingTree(treeHash string) error {
+func (r *Repository) RecreateWorkingTree(treeHash string) error {
 	var idxBuffer bytes.Buffer
-	repo := GetRepository("")
+
+	// Remove temp file
+	defer os.RemoveAll(r.paths.bGitTempPath)
 
 	// Create temp folder
-	err := os.Mkdir(repo.paths.bGitTempPath, 0755)
+	err := os.Mkdir(r.paths.bGitTempPath, 0755)
 	if err != nil {
 		return err
 	}
 
 	// Use temp folder to rollback in case it fails
-	err = repo.RecreateWorkingTree(treeHash, repo.paths.bGitTempPath, &idxBuffer)
+	err = r.recreateWorkingTree(treeHash, r.paths.bGitTempPath, &idxBuffer)
 	if err != nil {
 		return err
 	}
 
-	err = repo.DeleteWorkingTree()
+	err = r.DeleteWorkingTree()
 	if err != nil {
-		// Remove temp folder with new working tree if deleting the current one fails
-		os.RemoveAll(repo.paths.bGitTempPath)
 		return err
 	}
 
 	//After use temp folder, we should copy content from it to working tree and delete it
-	err = utils.CopyDir(repo.WorkTree, repo.paths.bGitTempPath)
-	if err != nil {
-		return err
-	}
-
-	// Remove temp file
-	err = os.RemoveAll(repo.paths.bGitTempPath)
+	err = utils.CopyDir(r.WorkTree, r.paths.bGitTempPath)
 	if err != nil {
 		return err
 	}
 
 	// Write updated index
-	return repo.updateIndex(&idxBuffer)
+	return r.updateIndex(&idxBuffer)
 }
 
-func (r *Repository) RecreateWorkingTree(treeHash string, path string, index *bytes.Buffer) error {
+func (r *Repository) recreateWorkingTree(treeHash string, path string, index *bytes.Buffer) error {
 	content, err := r.Store.Get(treeHash)
 	if err != nil {
 		return err
@@ -93,7 +87,7 @@ func (r *Repository) RecreateWorkingTree(treeHash string, path string, index *by
 				return err
 			}
 
-			err = r.RecreateWorkingTree(parts[2], filepath.Join(path, parts[3]), index)
+			err = r.recreateWorkingTree(parts[2], filepath.Join(path, parts[3]), index)
 			if err != nil {
 				return err
 			}

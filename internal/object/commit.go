@@ -2,7 +2,9 @@ package object
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -14,6 +16,8 @@ type Commit struct {
 	Tree      []byte   //sha1 of the root tree
 	Parent    []string //array of sha1 commits
 }
+
+var CommitPrefix = []byte("c\000")
 
 func NewCommit(author, message string, tree []byte, parents []string) *Commit {
 	createdAt := time.Now()
@@ -33,7 +37,7 @@ func NewCommit(author, message string, tree []byte, parents []string) *Commit {
 
 func (c *Commit) Serialize() []byte {
 	var buffer bytes.Buffer
-	//buffer.WriteString("c\000")
+	buffer.WriteString(string(CommitPrefix))
 	buffer.WriteString(fmt.Sprintf("tree %s\n", GetSha1AsString(c.Tree)))
 
 	if len(c.Parent) > 0 { //TODO: treat multiple parents
@@ -58,10 +62,25 @@ func (c *Commit) GetType() string {
 	return "commit"
 }
 
-func (c *Commit) Children() []BGitObject {
-	return []BGitObject{}
-}
-
 func (c *Commit) FormatToIndex() string {
 	return ""
+}
+
+func ParseCommit(data []byte, commitHash string) (*Commit, error) {
+	data, found := bytes.CutPrefix(data, CommitPrefix)
+	if !found {
+		return nil, errors.New("could not parse object as commit: " + commitHash)
+	}
+
+	commit := &Commit{}
+
+	sData := string(data)
+	lines := strings.Split(sData, "\n")
+
+	commit.Hash = []byte(commitHash)
+	commit.Tree = []byte(strings.TrimPrefix(lines[0], "tree "))
+	commit.Parent = strings.Split(strings.TrimPrefix(lines[1], "parent "), " ")
+	commit.Author = strings.Replace(lines[2], "author ", "", 1)
+	commit.Message = lines[4]
+	return commit, nil
 }

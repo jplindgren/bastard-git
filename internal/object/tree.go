@@ -57,10 +57,6 @@ func (t *Tree) GetType() string {
 	return "tree"
 }
 
-func (t *Tree) Children() []BGitObject {
-	return t.entries
-}
-
 func (t *Tree) FormatToIndex() string {
 	var buffer bytes.Buffer
 	for _, entry := range t.entries {
