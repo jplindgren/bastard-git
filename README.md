@@ -47,7 +47,7 @@ The file containing the state of the repo at the time. In real GIT the index is 
 
 ## Ignore files
 
-If you want to ignore files, create a file called `.bgitignore` and add one relative path per line. Folders and Wildcards are not allowed atm.
+If you want to ignore files, create a file called `.bgitignore` and add one relative path (folder or file) per line. Wildcards are not allowed atm.
 
 ## How to run
 
@@ -94,7 +94,6 @@ export BGIT_USER="email@gmail.com"
 
 - reflog and `bgit log` command
 - reset
-- add wildcards/folders to `.bgitignore`
 - destroy branch
 - clone?
 
