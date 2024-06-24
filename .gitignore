@@ -28,3 +28,5 @@ bgit-m1
 
 .vscode
 .docker
+
+dist/
