@@ -24,6 +24,11 @@ builds:
       - windows
       - darwin
 
+release:
+  github:
+    owner: jplindgren
+    name: bastard-git
+
 archives:
   - format: tar.gz
     # this name template makes the OS and Arch compatible with the results of `uname`.
@@ -40,6 +45,7 @@ archives:
         format: zip
 
 changelog:
+  use: github
   sort: asc
   filters:
     exclude:
