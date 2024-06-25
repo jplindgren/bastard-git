@@ -45,7 +45,3 @@ changelog:
     exclude:
       - "^docs:"
       - "^test:"
-
-signs:
-  - artifacts: checksum
-    args: ['--armor', '--detach-sign', '--output={{ .Artifact }}.sig']
