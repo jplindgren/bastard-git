@@ -20,15 +20,18 @@ build:
 	CGO_ENABLED=0 go build -o $(BINARY_NAME) main.go
 	chmod +x $(BINARY_NAME)
 
+# Bump version target and push a tag to trigger new release
+.PHONY: release
 release:
-	@echo "Pushing a new tag"
-	git fetch --tags --force
-	latest_tag=$(git describe --tags `git rev-list --tags --max-count=1` || echo "v0.0.0")
-	latest_version=$(echo $latest_tag | sed 's/^v//')
-	new_version=$(echo $latest_version | awk -F. -v OFS=. '{$NF++;print}')
-	@echo "New version: $new_version"
-	git tag v$new_version
-	git push origin v$new_version
+	@echo "Fetching the latest tag..."
+	@git fetch --tags
+	@latest_tag=$$(git describe --tags `git rev-list --tags --max-count=1` 2>/dev/null || echo "v0.0.0"); \
+	latest_version=$$(echo $$latest_tag | sed 's/^v//'); \
+	new_version=$$(echo $$latest_version | awk -F. -v OFS=. '{$$NF++;print}'); \
+	echo "Latest tag: $$latest_tag"; \
+	echo "New version: $$new_version"; \
+	git tag v$$new_version; \
+	git push origin v$$new_version
 
 run:
 	@echo "Running $(PROJECT_NAME)"
