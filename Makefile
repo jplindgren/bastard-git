@@ -24,7 +24,7 @@ build:
 .PHONY: release
 release:
 	@echo "Fetching the latest tag..."
-	@git fetch --tags
+	@git fetch --tags --force
 	@latest_tag=$$(git describe --tags `git rev-list --tags --max-count=1` 2>/dev/null || echo "v0.0.0"); \
 	latest_version=$$(echo $$latest_tag | sed 's/^v//'); \
 	new_version=$$(echo $$latest_version | awk -F. -v OFS=. '{$$NF++;print}'); \
