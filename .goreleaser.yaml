@@ -8,6 +8,8 @@
 
 version: 2
 
+project_name: bgit
+
 before:
   hooks:
     # You may remove this if you don't use go modules.
@@ -15,7 +17,8 @@ before:
     # you may remove this if you don't need go generate
 
 builds:
-  - env:
+  - main: make build
+    env:
       - CGO_ENABLED=0
     goos:
       - linux
@@ -43,3 +46,7 @@ changelog:
     exclude:
       - "^docs:"
       - "^test:"
+
+signs:
+  - artifacts: checksum
+    args: ['--armor', '--detach-sign', '--output={{ .Artifact }}.sig']
