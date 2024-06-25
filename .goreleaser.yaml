@@ -17,8 +17,7 @@ before:
     # you may remove this if you don't need go generate
 
 builds:
-  - main: make build
-    env:
+  - env:
       - CGO_ENABLED=0
     goos:
       - linux
