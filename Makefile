@@ -20,10 +20,15 @@ build:
 	CGO_ENABLED=0 go build -o $(BINARY_NAME) main.go
 	chmod +x $(BINARY_NAME)
 
-build-mac:
-	@echo "Building $(PROJECT_NAME) for macOS m1"
-	GOOS=darwin GOARCH=amd64 go build -o "$(BINARY_NAME)-m1" main.go
-	chmod +x "$(BINARY_NAME)-m1"
+release:
+	@echo "Pushing a new tag"
+	git fetch --tags --force
+	latest_tag=$(git describe --tags `git rev-list --tags --max-count=1` || echo "v0.0.0")
+	latest_version=$(echo $latest_tag | sed 's/^v//')
+	new_version=$(echo $latest_version | awk -F. -v OFS=. '{$NF++;print}')
+	@echo "New version: $new_version"
+	git tag v$new_version
+	git push origin v$new_version
 
 run:
 	@echo "Running $(PROJECT_NAME)"
