@@ -1,6 +1,8 @@
 # BGIT
 
-[![Build](https://github.com/jplindgren/bastard-git/actions/workflows/go.yml/badge.svg)](https://github.com/jplindgren/bastard-git/actions/workflows/go.yml)
+[![CI](https://github.com/jplindgren/bastard-git/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/jplindgren/bastard-git/actions/workflows/build-and-test.yml)
+
+
 
 Simple git clone in GO.
 BGIT can mean anything, depending on your mood.
